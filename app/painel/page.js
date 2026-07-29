@@ -1,5 +1,5 @@
 'use client';
-import { useSnapshot, useNow, fmtTime } from '../live';
+import { useSnapshot, useNow, fmtTime, groupLabel, groupTag } from '../live';
 import { CourtsGrid } from '../components';
 
 export default function Painel() {
@@ -28,11 +28,11 @@ export default function Painel() {
           <div className="card">
             <h2>Fila de espera · ordem de chegada</h2>
             {data.queue.length === 0 && <div className="empty">Ninguém na fila agora.</div>}
-            {data.queue.map((d, i) => (
-              <div key={d.id} className={`qrow${i === 0 ? ' next' : ''}`}>
+            {data.queue.map((g, i) => (
+              <div key={g.id} className={`qrow${i === 0 ? ' next' : ''}`}>
                 <span className="qn">{i + 1}</span>
-                <span className="qnm">{d.names.join(' × ')}</span>
-                <span className="qw">chegou {fmtTime(d.formedAt)}</span>
+                <span className="qnm">{groupLabel(g)}<span className="qtag">{groupTag(g)}</span></span>
+                <span className="qw">chegou {fmtTime(g.formedAt)}</span>
               </div>
             ))}
           </div>

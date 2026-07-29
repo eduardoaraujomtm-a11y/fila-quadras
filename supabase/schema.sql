@@ -12,14 +12,24 @@ create table if not exists fila_players (
 
 create table if not exists fila_duos (
   id uuid primary key default gen_random_uuid(),
-  name1 text not null,
-  name2 text not null,
+  type text not null default 'singles',     -- singles | doubles | batedor
+  limit_min int not null default 60,         -- 60 (jogo) ou 30 (batedor)
+  members jsonb not null default '[]'::jsonb, -- [{ id, name }] — 1 a 4 membros
+  name1 text,
+  name2 text,
   p1 uuid,
   p2 uuid,
   formed_at timestamptz not null default now(),
-  status text not null default 'queued',   -- queued | called | playing | done
+  status text not null default 'queued',     -- queued | called | playing | done
   court_id text
 );
+
+create table if not exists fila_settings (
+  key text primary key,
+  value text
+);
+insert into fila_settings (key, value) values ('batedor_available', 'false')
+on conflict (key) do nothing;
 
 create table if not exists fila_courts (
   id text primary key,

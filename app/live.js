@@ -61,9 +61,27 @@ export function fmtTime(ts) {
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
-// remaining play time for a court, in ms
-export function msLeft(court, now, limitMinutes) {
+// remaining play time for a court, in ms (usa o limite do grupo: 60 ou 30)
+export function msLeft(court, now) {
   if (court.status !== 'playing' || !court.playStartedAt) return null;
-  const end = court.playStartedAt + limitMinutes * 60 * 1000;
-  return end - now;
+  const lim = court.duo?.limit || 60;
+  return court.playStartedAt + lim * 60 * 1000 - now;
+}
+
+// rótulo de um grupo na fila / quadra
+export function groupLabel(g) {
+  if (!g) return '';
+  if (g.type === 'batedor') return `${g.names[0]} + Leandro`;
+  if (g.type === 'singles') return g.names.join(' × ');
+  let s = g.names.join(' / ');
+  if (g.size < g.target) s += ` (faltam ${g.target - g.size})`;
+  return s;
+}
+
+// selo curto do tipo de jogo
+export function groupTag(g) {
+  if (!g) return '';
+  if (g.type === 'batedor') return 'Batedor · 30 min';
+  if (g.type === 'doubles') return `Duplas ${g.size}/4`;
+  return 'Simples';
 }

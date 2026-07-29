@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useSnapshot, useNow, postJSON, fmtClock, fmtTime, msLeft } from '../live';
+import { useSnapshot, useNow, postJSON, fmtClock, fmtTime, msLeft, groupLabel, groupTag } from '../live';
 import AdminGate from '../admin-gate';
 
 const WD = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
@@ -31,9 +31,15 @@ function RecepcaoInner() {
     if (!j.ok) setErr(j.error);
     refresh();
   }
-  async function removeDuo(duoId) {
+  async function removeGroup(groupId) {
     setErr(null);
-    const j = await postJSON('/api/duo', { duoId }, 'DELETE');
+    const j = await postJSON('/api/group', { groupId }, 'DELETE');
+    if (!j.ok) setErr(j.error);
+    refresh();
+  }
+  async function toggleBatedor(available) {
+    setErr(null);
+    const j = await postJSON('/api/batedor', { available });
     if (!j.ok) setErr(j.error);
     refresh();
   }
@@ -75,14 +81,31 @@ function RecepcaoInner() {
           </div>
 
           <div className="card">
+            <h2>Batedor · Leandro</h2>
+            <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+              <div style={{ fontSize: 14 }}>
+                {data.batedor?.available
+                  ? <span style={{ color: 'var(--ok)', fontWeight: 700 }}>● Disponível{data.batedor?.busy ? ' · com uma pessoa agora' : ' · livre'}</span>
+                  : <span className="muted">○ Indisponível — atletas não podem escolher o Leandro</span>}
+              </div>
+              {data.batedor?.available
+                ? <button className="btn small danger" onClick={() => toggleBatedor(false)}>Encerrar disponibilidade</button>
+                : <button className="btn small primary" onClick={() => toggleBatedor(true)}>Liberar o Leandro</button>}
+            </div>
+            <p className="muted" style={{ fontSize: 12.5, marginTop: 10 }}>
+              Quando liberado, o atleta pode escolher bater bola com o Leandro (30 min). Ele atende uma pessoa por vez.
+            </p>
+          </div>
+
+          <div className="card">
             <h2>Fila de espera · controlar</h2>
             {data.queue.length === 0 && <div className="empty">Ninguém na fila.</div>}
-            {data.queue.map((d, i) => (
-              <div key={d.id} className={`qrow${i === 0 ? ' next' : ''}`}>
+            {data.queue.map((g, i) => (
+              <div key={g.id} className={`qrow${i === 0 ? ' next' : ''}`}>
                 <span className="qn">{i + 1}</span>
-                <span className="qnm">{d.names.join(' × ')}</span>
-                <span className="qw" style={{ marginRight: 8 }}>chegou {fmtTime(d.formedAt)}</span>
-                <button className="btn small danger" onClick={() => removeDuo(d.id)}>Remover</button>
+                <span className="qnm">{groupLabel(g)}<span className="qtag">{groupTag(g)}</span></span>
+                <span className="qw" style={{ marginRight: 8 }}>chegou {fmtTime(g.formedAt)}</span>
+                <button className="btn small danger" onClick={() => removeGroup(g.id)}>Remover</button>
               </div>
             ))}
           </div>
@@ -96,19 +119,20 @@ function RecepcaoInner() {
 
 function AdminCourt({ court, now, limitMinutes, queueLen, onAct, onBlock }) {
   const cls = court.status === 'free' ? 'free' : court.status === 'prep' ? 'prep' : court.status === 'lesson' ? 'lesson' : '';
-  const left = msLeft(court, now, limitMinutes);
+  const left = msLeft(court, now);
   return (
     <div className={`court ${cls}`}>
       <div className="cnum">
         {court.name}
         {court.status === 'prep' && <span className="pill prep">Em preparo</span>}
         {court.status === 'lesson' && <span className="pill lesson">Aula</span>}
+        {court.status === 'playing' && court.duo?.type === 'batedor' && <span className="pill prep">30 min</span>}
         {court.status === 'playing' && left <= 5 * 60 * 1000 && <span className="pill live">no limite</span>}
       </div>
 
       {court.status === 'playing' && (
         <>
-          <div className="who">{court.duo?.names?.join(' × ')}</div>
+          <div className="who">{groupLabel(court.duo)}</div>
           <div className="foot">
             <div className="timer"><span className="t tabnums">{fmtClock(left)}</span><span className="u">restantes</span></div>
             <div className="row" style={{ gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
@@ -121,7 +145,7 @@ function AdminCourt({ court, now, limitMinutes, queueLen, onAct, onBlock }) {
 
       {court.status === 'prep' && (
         <>
-          <div className="who" style={{ fontSize: 14 }}>Próximos: {court.called?.names?.join(' × ') || '—'}</div>
+          <div className="who" style={{ fontSize: 14 }}>Próximos: {groupLabel(court.called) || '—'}</div>
           <div className="foot">
             <div className="sub">cronômetro inicia ao marcar “em jogo”</div>
             <div className="row" style={{ gap: 6, marginTop: 10 }}>
