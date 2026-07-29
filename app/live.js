@@ -85,3 +85,39 @@ export function groupTag(g) {
   if (g.type === 'doubles') return `Duplas ${g.size}/4`;
   return 'Simples';
 }
+
+// Previsão de entrada em quadra para cada grupo da fila.
+// Estimativa: assume que cada jogo dura o limite (60/30), que o preparo leva ~PREP min,
+// e que a recepção chama assim que a quadra libera.
+const PREP_MIN = 5;
+
+export function computeEtas(data, now) {
+  const prep = PREP_MIN * 60000;
+  const courts = (data?.courts || []).map((c) => {
+    let freeAt;
+    if (c.status === 'lesson') freeAt = c.lesson?.until || (now + 6 * 3600000);
+    else if (c.status === 'playing') freeAt = Math.max(now, (c.playStartedAt || now) + (c.duo?.limit || 60) * 60000);
+    else if (c.status === 'prep') freeAt = now + (c.called?.limit || 60) * 60000;
+    else freeAt = now; // livre
+    return { id: c.id, name: c.name, freeAt };
+  });
+  const byId = {};
+  for (const g of (data?.queue || [])) {
+    let best = courts[0];
+    for (const c of courts) if (c.freeAt < best.freeAt) best = c;
+    if (!best) break;
+    const at = Math.max(best.freeAt, now);
+    byId[g.id] = { at, waitMin: Math.max(0, Math.round((at - now) / 60000)), courtId: best.id, courtName: best.name };
+    best.freeAt = at + (g.limit || 60) * 60000 + prep;
+  }
+  const nextFreeMin = courts.length ? Math.max(0, Math.round((Math.min(...courts.map((c) => c.freeAt)) - now) / 60000)) : null;
+  return { byId, nextFreeMin };
+}
+
+export function fmtWait(min) {
+  if (min == null) return '—';
+  if (min <= 1) return 'a seguir';
+  const r = Math.round(min / 5) * 5;
+  if (r >= 60) { const h = Math.floor(r / 60), m = r % 60; return m ? `~${h}h${String(m).padStart(2, '0')}` : `~${h}h`; }
+  return `~${r} min`;
+}

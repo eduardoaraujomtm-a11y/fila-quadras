@@ -1,10 +1,11 @@
 'use client';
-import { useSnapshot, useNow, fmtTime, groupLabel, groupTag } from '../live';
+import { useSnapshot, useNow, fmtTime, groupLabel, groupTag, computeEtas, fmtWait } from '../live';
 import { CourtsGrid } from '../components';
 
 export default function Painel() {
   const { data } = useSnapshot(2000);
   const now = useNow(1000);
+  const etas = data ? computeEtas(data, now) : { byId: {} };
 
   return (
     <div className="wrap wide">
@@ -32,7 +33,11 @@ export default function Painel() {
               <div key={g.id} className={`qrow${i === 0 ? ' next' : ''}`}>
                 <span className="qn">{i + 1}</span>
                 <span className="qnm">{groupLabel(g)}<span className="qtag">{groupTag(g)}</span></span>
-                <span className="qw">chegou {fmtTime(g.formedAt)}</span>
+                <span className="qw" style={{ textAlign: 'right', lineHeight: 1.35 }}>
+                  <b style={{ color: 'var(--saibro)' }}>{fmtWait(etas.byId[g.id]?.waitMin)}</b>
+                  {etas.byId[g.id]?.courtName ? ` · ${etas.byId[g.id].courtName}` : ''}
+                  <br /><span style={{ color: 'var(--ink-2)' }}>chegou {fmtTime(g.formedAt)}</span>
+                </span>
               </div>
             ))}
           </div>

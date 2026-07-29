@@ -1,5 +1,5 @@
 'use client';
-import { useSnapshot, useNow, fmtTime, groupLabel, groupTag } from '../live';
+import { useSnapshot, useNow, fmtTime, groupLabel, groupTag, computeEtas, fmtWait } from '../live';
 import { CourtsGrid } from '../components';
 
 function level(v) { return v < 45 ? 'var(--ok)' : v < 75 ? 'var(--ball)' : 'var(--wait)'; }
@@ -15,8 +15,7 @@ export default function Publico() {
     aula = data.courts.filter((c) => c.status === 'lesson').length;
   }
   const queueLen = data?.queue.length || 0;
-  const activeCourts = data ? data.courts.length - aula : 3;
-  const est = activeCourts > 0 ? Math.round((queueLen / activeCourts) * data?.limitMinutes / 5) * 5 : null;
+  const etas = data ? computeEtas(data, now) : { byId: {}, nextFreeMin: null };
   const busyLevel = queueLen >= 3 ? 'alto' : queueLen >= 1 ? 'médio' : 'tranquilo';
 
   return (
@@ -37,9 +36,9 @@ export default function Publico() {
               <div style={{ fontSize: 30, fontWeight: 800 }} className="tabnums">{livres}<span style={{ fontSize: 15, color: 'var(--ink-2)' }}> / {data.courts.length}</span></div>
             </div>
             <div className="card" style={{ margin: 0 }}>
-              <div className="muted" style={{ fontSize: 13 }}>Espera estimada</div>
+              <div className="muted" style={{ fontSize: 13 }}>Se chegar agora, joga em</div>
               <div style={{ fontSize: 30, fontWeight: 800 }} className="tabnums">
-                {queueLen === 0 && livres > 0 ? '0' : est == null ? '—' : `~${est}`}<span style={{ fontSize: 15, color: 'var(--ink-2)' }}> min</span>
+                {livres > 0 ? 'agora' : fmtWait(etas.nextFreeMin)}
               </div>
             </div>
           </div>
@@ -68,7 +67,10 @@ export default function Publico() {
               <div key={g.id} className={`qrow${i === 0 ? ' next' : ''}`}>
                 <span className="qn">{i + 1}</span>
                 <span className="qnm">{groupLabel(g)}<span className="qtag">{groupTag(g)}</span></span>
-                <span className="qw">chegou {fmtTime(g.formedAt)}</span>
+                <span className="qw" style={{ textAlign: 'right', lineHeight: 1.35 }}>
+                  <b style={{ color: 'var(--saibro)' }}>{fmtWait(etas.byId[g.id]?.waitMin)}</b>
+                  {etas.byId[g.id]?.courtName ? ` · ${etas.byId[g.id].courtName}` : ''}
+                </span>
               </div>
             ))}
           </div>

@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { postJSON, fmtTime, groupLabel, groupTag } from '../live';
+import { postJSON, fmtTime, groupLabel, groupTag, useNow, computeEtas, fmtWait } from '../live';
 
 const PID_KEY = 'fila_pid';
 
@@ -218,6 +218,7 @@ export default function Checkin() {
 function MyStatus({ player, state, singles, onDisband, busy, onLeave, setErr, err }) {
   const [addSel, setAddSel] = useState([]);
   const [adding, setAdding] = useState(false);
+  const now = useNow(1000);
   const gid = player.duoId;
 
   const inQueue = state.queue.find((g) => g.id === gid);
@@ -225,6 +226,7 @@ function MyStatus({ player, state, singles, onDisband, busy, onLeave, setErr, er
   const inPrep = state.courts.find((c) => c.called?.id === gid);
   const group = onCourt?.duo || inPrep?.called || inQueue;
   const pos = state.queue.findIndex((g) => g.id === gid);
+  const eta = computeEtas(state, now).byId[gid];
 
   async function addMembers() {
     setErr(null); setAdding(true);
@@ -252,6 +254,15 @@ function MyStatus({ player, state, singles, onDisband, busy, onLeave, setErr, er
     <div className="muted" style={{ fontSize: 13, marginTop: 4 }}>
       {pos === 0 ? 'Você é o próximo a ser chamado.' : pos > 0 ? `${pos} grupo(s) na sua frente.` : 'Aguardando…'}
     </div>
+    {eta && (
+      <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border)', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+        <div><div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ink-2)', fontWeight: 700 }}>Previsão</div>
+          <div style={{ fontSize: 20, fontWeight: 800, marginTop: 2 }}>{fmtWait(eta.waitMin)}</div></div>
+        <div><div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ink-2)', fontWeight: 700 }}>Provável quadra</div>
+          <div style={{ fontSize: 20, fontWeight: 800, marginTop: 2 }}>{eta.courtName}</div></div>
+      </div>
+    )}
+    <div className="note" style={{ marginTop: 8, textAlign: 'left' }}>Estimativa — pode variar conforme os jogos em andamento.</div>
   </div>;
 
   const canAdd = group && group.type === 'doubles' && group.size < group.target && !onCourt;
