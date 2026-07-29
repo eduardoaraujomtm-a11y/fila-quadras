@@ -22,7 +22,7 @@ export default function Publico() {
     <div className="wrap">
       <div className="topbar">
         <a className="back" href="/">← início</a>
-        <span className="kicker"><span className="ball" /> Acompanhe as Quadras</span>
+        <img className="brand-logo" src="/logo-lira.png" alt="Lira Tênis Clube · 100 anos" />
         <span className="muted" style={{ fontSize: 13 }}><span className="dot-live" />ao vivo</span>
       </div>
 

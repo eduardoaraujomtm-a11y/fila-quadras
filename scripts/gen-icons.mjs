@@ -8,10 +8,10 @@ function svg(size, pad) {
   const c = size / 2;
   const r = (size / 2) - pad;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-  <rect width="${size}" height="${size}" rx="${size * 0.18}" fill="#17402F"/>
-  <circle cx="${c}" cy="${c}" r="${r}" fill="#C7D64A"/>
-  <path d="M ${c - r} ${c} A ${r * 1.35} ${r * 1.35} 0 0 1 ${c + r} ${c}" fill="none" stroke="#17402F" stroke-width="${size * 0.045}" opacity="0.85"/>
-  <path d="M ${c - r} ${c} A ${r * 1.35} ${r * 1.35} 0 0 0 ${c + r} ${c}" fill="none" stroke="#17402F" stroke-width="${size * 0.045}" opacity="0.85"/>
+  <rect width="${size}" height="${size}" rx="${size * 0.18}" fill="#3B2A8C"/>
+  <circle cx="${c}" cy="${c}" r="${r}" fill="#F5DF3D"/>
+  <path d="M ${c - r} ${c} A ${r * 1.35} ${r * 1.35} 0 0 1 ${c + r} ${c}" fill="none" stroke="#3B2A8C" stroke-width="${size * 0.045}" opacity="0.9"/>
+  <path d="M ${c - r} ${c} A ${r * 1.35} ${r * 1.35} 0 0 0 ${c + r} ${c}" fill="none" stroke="#3B2A8C" stroke-width="${size * 0.045}" opacity="0.9"/>
 </svg>`;
 }
 

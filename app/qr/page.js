@@ -25,7 +25,7 @@ function QrInner() {
       } catch {}
       const target = `${window.location.origin}/checkin?c=${encodeURIComponent(token)}`;
       setUrl(target);
-      QRCode.toDataURL(target, { width: 520, margin: 1, color: { dark: '#17402F', light: '#FFFFFF' } })
+      QRCode.toDataURL(target, { width: 520, margin: 1, color: { dark: '#3B2A8C', light: '#FFFFFF' } })
         .then(setDataUrl)
         .catch(() => {});
     })();

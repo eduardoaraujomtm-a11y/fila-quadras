@@ -11,7 +11,7 @@ export default function Painel() {
     <div className="wrap wide">
       <div className="topbar">
         <a className="back" href="/">← início</a>
-        <span className="kicker"><span className="ball" /> Painel da parede</span>
+        <img className="brand-logo" src="/logo-lira.png" alt="Lira Tênis Clube · 100 anos" />
         <span className="muted tabnums" style={{ fontSize: 14 }}>
           <span className="dot-live" />ao vivo · {new Date(now).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
         </span>
