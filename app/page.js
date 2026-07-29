@@ -3,8 +3,7 @@ export default function Home() {
     <div className="wrap">
       <img className="brand-logo" src="/logo-lira.png" alt="Lira Tênis Clube · 100 anos" />
       <span className="kicker"><span className="ball" /> Quadro Virtual</span>
-      <h1>A fila do clube, sem o quadro de caneta.</h1>
-      <p className="lede">Fila por ordem de chegada das quadras de tênis. Escolha por onde entrar.</p>
+      <p className="lede" style={{ marginTop: 10 }}>Fila por ordem de chegada das quadras de tênis.</p>
 
       <div className="hub">
         <a href="/checkin">
