@@ -2,7 +2,7 @@ export default function Home() {
   return (
     <div className="wrap">
       <img className="brand-logo" src="/logo-lira.png" alt="Lira Tênis Clube · 100 anos" />
-      <span className="kicker"><span className="ball" /> Quadro Virtual</span>
+      <span className="kicker big"><span className="ball" /> Quadro Virtual</span>
       <p className="lede" style={{ marginTop: 10 }}>Fila por ordem de chegada das quadras de tênis.</p>
 
       <div className="hub">
