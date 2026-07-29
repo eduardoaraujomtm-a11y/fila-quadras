@@ -2,21 +2,22 @@
 
 Siga na ordem. Onde precisar de mim (Claude), está marcado com 👉.
 
-## 1. Criar o projeto Supabase (grátis)
+## 1. Usar o projeto Supabase do torneio
 
-1. Acesse https://supabase.com e crie uma conta / novo projeto.
-2. Dê um nome (ex.: `fila-quadras`) e defina uma senha do banco. Escolha a região mais próxima (South America / São Paulo).
-3. Espere o projeto provisionar (~2 min).
+Este app reaproveita o **mesmo projeto Supabase** do app do torneio de tênis. As tabelas
+da fila têm prefixo `fila_` (`fila_players`, `fila_duos`, ...), então **não colidem** com as
+tabelas do torneio. Não precisa criar projeto novo — é só abrir o projeto existente.
 
-## 2. Criar as tabelas
+## 2. Criar as tabelas (com prefixo)
 
-1. No projeto, abra **SQL Editor** (menu lateral) → **New query**.
+1. No projeto do torneio, abra **SQL Editor** (menu lateral) → **New query**.
 2. Cole todo o conteúdo de [`supabase/schema.sql`](supabase/schema.sql) e clique **Run**.
-3. Deve aparecer "Success". Isso cria as tabelas e cadastra as 3 quadras.
+3. Deve aparecer "Success". Isso cria só as tabelas `fila_*` e cadastra as 3 quadras — nada
+   do torneio é tocado.
 
 ## 3. Pegar as chaves
 
-Em **Project Settings → API**:
+São as **mesmas chaves** do projeto do torneio. Em **Project Settings → API**:
 - **Project URL** → vai em `NEXT_PUBLIC_SUPABASE_URL`
 - **Project API keys → `service_role` (secret)** → vai em `SUPABASE_SERVICE_ROLE_KEY`
   - ⚠️ A `service_role` é secreta. Nunca coloque no cliente nem no Git. Só como variável de ambiente no servidor.
