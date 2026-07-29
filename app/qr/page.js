@@ -16,11 +16,19 @@ function QrInner() {
   const [url, setUrl] = useState('');
 
   useEffect(() => {
-    const target = `${window.location.origin}/checkin`;
-    setUrl(target);
-    QRCode.toDataURL(target, { width: 520, margin: 1, color: { dark: '#17402F', light: '#FFFFFF' } })
-      .then(setDataUrl)
-      .catch(() => {});
+    (async () => {
+      let token = '';
+      try {
+        const r = await fetch('/api/checkin-token', { cache: 'no-store' });
+        const j = await r.json();
+        token = j.token || '';
+      } catch {}
+      const target = `${window.location.origin}/checkin?c=${encodeURIComponent(token)}`;
+      setUrl(target);
+      QRCode.toDataURL(target, { width: 520, margin: 1, color: { dark: '#17402F', light: '#FFFFFF' } })
+        .then(setDataUrl)
+        .catch(() => {});
+    })();
   }, []);
 
   return (
