@@ -87,7 +87,7 @@ export default function Checkin() {
     <div className="wrap">
       <div className="topbar">
         <a className="back" href="/">← início</a>
-        <span className="kicker"><span className="ball" /> App do atleta</span>
+        <span className="kicker"><span className="ball" /> Atletas</span>
       </div>
 
       {!player && (

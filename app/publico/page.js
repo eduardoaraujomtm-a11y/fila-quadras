@@ -23,7 +23,7 @@ export default function Publico() {
     <div className="wrap">
       <div className="topbar">
         <a className="back" href="/">← início</a>
-        <span className="kicker"><span className="ball" /> Consulta pública</span>
+        <span className="kicker"><span className="ball" /> Acompanhe as Quadras</span>
         <span className="muted" style={{ fontSize: 13 }}><span className="dot-live" />ao vivo</span>
       </div>
 

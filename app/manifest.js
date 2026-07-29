@@ -1,8 +1,8 @@
 export default function manifest() {
   return {
-    name: 'Fila das Quadras',
-    short_name: 'Fila Quadras',
-    description: 'Fila virtual por ordem de chegada das quadras de tênis do clube.',
+    name: 'Quadro Virtual',
+    short_name: 'Quadro Virtual',
+    description: 'Fila por ordem de chegada das quadras de tênis do clube.',
     start_url: '/',
     display: 'standalone',
     orientation: 'portrait',

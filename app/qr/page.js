@@ -1,8 +1,17 @@
 'use client';
 import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
+import AdminGate from '../admin-gate';
 
 export default function QrPage() {
+  return (
+    <AdminGate>
+      <QrInner />
+    </AdminGate>
+  );
+}
+
+function QrInner() {
   const [dataUrl, setDataUrl] = useState(null);
   const [url, setUrl] = useState('');
 
@@ -17,7 +26,7 @@ export default function QrPage() {
   return (
     <div className="wrap">
       <div className="topbar no-print">
-        <a className="back" href="/">← início</a>
+        <a className="back" href="/recepcao">← Funcionários</a>
         <span className="kicker"><span className="ball" /> QR de check-in</span>
       </div>
 

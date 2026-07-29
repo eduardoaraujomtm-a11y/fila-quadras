@@ -1,15 +1,29 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useSnapshot, useNow, postJSON, fmtClock, fmtTime, msLeft } from '../live';
+import AdminGate from '../admin-gate';
 
 const WD = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 const toMin = (hhmm) => { const [h, m] = hhmm.split(':').map(Number); return h * 60 + m; };
 const toHHMM = (min) => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
 
 export default function Recepcao() {
+  return (
+    <AdminGate>
+      <RecepcaoInner />
+    </AdminGate>
+  );
+}
+
+function RecepcaoInner() {
   const { data, refresh } = useSnapshot(2000);
   const now = useNow(1000);
   const [err, setErr] = useState(null);
+
+  async function logout() {
+    await fetch('/api/auth', { method: 'DELETE' });
+    window.location.reload();
+  }
 
   async function act(body) {
     setErr(null);
@@ -34,8 +48,12 @@ export default function Recepcao() {
     <div className="wrap wide">
       <div className="topbar">
         <a className="back" href="/">← início</a>
-        <span className="kicker"><span className="ball" /> Recepção · administração</span>
-        <button className="btn small" onClick={() => { if (confirm('Zerar tudo (fila, quadras, presenças)?')) act({ action: 'reset' }); }}>Reset</button>
+        <span className="kicker"><span className="ball" /> Funcionários</span>
+        <div className="row" style={{ gap: 8 }}>
+          <a className="btn small" href="/qr">QR de check-in</a>
+          <button className="btn small" onClick={() => { if (confirm('Zerar tudo (fila, quadras, presenças)?')) act({ action: 'reset' }); }}>Reset</button>
+          <button className="btn small" onClick={logout}>Sair</button>
+        </div>
       </div>
 
       {err && <div className="err">{err}</div>}

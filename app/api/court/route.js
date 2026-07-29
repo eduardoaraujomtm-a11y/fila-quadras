@@ -1,9 +1,11 @@
 import { callNext, startGame, endGame, extendGame, blockLesson, unblockLesson, resetAll } from '../../../lib/db';
+import { requireAdmin } from '../../../lib/adminAuth';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req) {
   try {
+    await requireAdmin();
     const body = await req.json();
     const { action, courtId } = body;
     switch (action) {
@@ -18,6 +20,6 @@ export async function POST(req) {
     }
     return Response.json({ ok: true });
   } catch (e) {
-    return Response.json({ ok: false, error: e.message }, { status: 400 });
+    return Response.json({ ok: false, error: e.message }, { status: e.status || 400 });
   }
 }

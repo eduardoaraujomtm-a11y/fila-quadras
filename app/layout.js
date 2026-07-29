@@ -2,10 +2,10 @@ import './globals.css';
 import SWRegister from './sw-register';
 
 export const metadata = {
-  title: 'Fila das Quadras',
-  description: 'Fila virtual por ordem de chegada das quadras de tênis do clube.',
+  title: 'Quadro Virtual',
+  description: 'Fila por ordem de chegada das quadras de tênis do clube.',
   manifest: '/manifest.webmanifest',
-  appleWebApp: { capable: true, statusBarStyle: 'default', title: 'Fila Quadras' },
+  appleWebApp: { capable: true, statusBarStyle: 'default', title: 'Quadro Virtual' },
   icons: {
     icon: [
       { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
