@@ -72,7 +72,7 @@ function RecepcaoInner() {
             <div className="courts">
               {data.courts.map((c) => (
                 <AdminCourt key={c.id} court={c} now={now} limitMinutes={data.limitMinutes}
-                  queueLen={data.queue.length} onAct={act} onBlock={block} />
+                  queueLen={data.queue.length} onAct={act} onBlock={block} refresh={refresh} onErr={setErr} />
               ))}
             </div>
             <p className="muted" style={{ fontSize: 12.5, marginTop: 12 }}>
@@ -101,11 +101,16 @@ function RecepcaoInner() {
             <h2>Fila de espera · controlar</h2>
             {data.queue.length === 0 && <div className="empty">Ninguém na fila.</div>}
             {data.queue.map((g, i) => (
-              <div key={g.id} className={`qrow${i === 0 ? ' next' : ''}`}>
-                <span className="qn">{i + 1}</span>
-                <span className="qnm">{groupLabel(g)}<span className="qtag">{groupTag(g)}</span></span>
-                <span className="qw" style={{ marginRight: 8 }}>chegou {fmtTime(g.formedAt)}</span>
-                <button className="btn small danger" onClick={() => removeGroup(g.id)}>Remover</button>
+              <div key={g.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                <div className={`qrow${i === 0 ? ' next' : ''}`} style={{ borderBottom: 'none' }}>
+                  <span className="qn">{i + 1}</span>
+                  <span className="qnm">{groupLabel(g)}<span className="qtag">{groupTag(g)}</span></span>
+                  <span className="qw" style={{ marginRight: 8 }}>chegou {fmtTime(g.formedAt)}</span>
+                  <button className="btn small danger" onClick={() => removeGroup(g.id)}>Remover</button>
+                </div>
+                {g.type === 'doubles' && g.size < g.target && (
+                  <AddPlayer group={g} refresh={refresh} onErr={setErr} />
+                )}
               </div>
             ))}
           </div>
@@ -117,7 +122,7 @@ function RecepcaoInner() {
   );
 }
 
-function AdminCourt({ court, now, limitMinutes, queueLen, onAct, onBlock }) {
+function AdminCourt({ court, now, limitMinutes, queueLen, onAct, onBlock, refresh, onErr }) {
   const cls = court.status === 'free' ? 'free' : court.status === 'prep' ? 'prep' : court.status === 'lesson' ? 'lesson' : '';
   const left = msLeft(court, now);
   return (
@@ -139,6 +144,9 @@ function AdminCourt({ court, now, limitMinutes, queueLen, onAct, onBlock }) {
               <button className="btn small" onClick={() => onAct({ action: 'extend', courtId: court.id, minutes: 15 })}>+15 min</button>
               <button className="btn small danger" onClick={() => onAct({ action: 'endGame', courtId: court.id })}>Encerrar jogo</button>
             </div>
+            {court.duo?.type === 'doubles' && court.duo.size < court.duo.target && (
+              <AddPlayer group={court.duo} refresh={refresh} onErr={onErr} />
+            )}
           </div>
         </>
       )}
@@ -151,6 +159,9 @@ function AdminCourt({ court, now, limitMinutes, queueLen, onAct, onBlock }) {
             <div className="row" style={{ gap: 6, marginTop: 10 }}>
               <button className="btn small primary" onClick={() => onAct({ action: 'startGame', courtId: court.id })}>Iniciar jogo ▶</button>
             </div>
+            {court.called?.type === 'doubles' && court.called.size < court.called.target && (
+              <AddPlayer group={court.called} refresh={refresh} onErr={onErr} />
+            )}
           </div>
         </>
       )}
@@ -184,6 +195,46 @@ function AdminCourt({ court, now, limitMinutes, queueLen, onAct, onBlock }) {
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+function AddPlayer({ group, refresh, onErr }) {
+  const [open, setOpen] = useState(false);
+  const [singles, setSingles] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const need = group.target - group.size;
+
+  async function load() {
+    const r = await fetch('/api/singles?exclude=none', { cache: 'no-store' });
+    const j = await r.json();
+    setSingles(j.singles || []);
+  }
+  function openIt() { onErr && onErr(null); setOpen(true); load(); }
+  async function add(pid) {
+    setBusy(true);
+    const j = await postJSON('/api/group', { op: 'add', groupId: group.id, playerId: pid });
+    setBusy(false);
+    if (!j.ok) { onErr && onErr(j.error); return; }
+    if (refresh) refresh();
+    load();
+  }
+
+  if (!open) {
+    return <button className="btn small" style={{ marginTop: 8 }} onClick={openIt}>+ Adicionar jogador ({need})</button>;
+  }
+  return (
+    <div style={{ marginTop: 10, padding: 10, border: '1px solid var(--border)', borderRadius: 10, background: 'var(--paper)' }}>
+      <div style={{ fontSize: 12, color: 'var(--ink-2)', marginBottom: 8, fontWeight: 600 }}>
+        Faltam {need} · toque para adicionar quem já escaneou o QR
+      </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+        {singles.length === 0 && <span className="muted" style={{ fontSize: 13 }}>Ninguém livre no momento.</span>}
+        {singles.map((s) => (
+          <button key={s.id} className="btn small" disabled={busy} onClick={() => add(s.id)}>+ {s.name}</button>
+        ))}
+        <button className="btn small ghost" onClick={() => setOpen(false)}>fechar</button>
+      </div>
     </div>
   );
 }
